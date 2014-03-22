@@ -27,3 +27,83 @@ body {
 	bottom: 0;
 	width: 100%;
 }
+
+
+/**************************************
+* #info-container styling (the top panel with album cover, track info) */
+
+#info-container {
+	position: absolute;
+	top: -240px;
+
+	width: 640px;
+	height: 240px;
+
+	background-color: #ccc
+}
+
+#info-container > div {
+	text-align: center;
+
+	color: #555;
+	opacity: 0;
+}
+
+
+/********************
+/* #cover-container (album cover) */
+#cover-container {
+	position: relative;
+	
+	width: 240px;
+	height: 100%;
+
+	float: left;
+}
+
+#cover {
+	float: left;
+
+	margin: 15px;
+
+	/* 15px is to accomodate the margin */
+	width: calc(240px - 2*15px);
+	height: calc(240px - 2*15px);
+
+	/* this curves the border of the div */
+    border-radius: 4%;
+
+    /* background-size: contain insures the image is fit within the div,
+    no-repeat prevents it from repeating to fill the div background */
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+
+/********************
+/* track-data (artist, track-name) */
+#track-data-container {
+	float: left;
+
+	width: calc(100% - 240px);
+	height: 100%;
+
+	font-family: 'Codystar', serif;
+	font-size: 2em;
+	text-transform: uppercase;
+}
+
+#track-data-container > div {
+	position: absolute;
+
+	width: calc(640px - 240px);
+	height: 25%;
+	line-height: 2em;
+	
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#track-artist { top: 2em; }
+#track-name { bottom: 2em; }
