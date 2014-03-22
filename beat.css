@@ -1,0 +1,21 @@
+/******************************************************************************
+* Overall Structure */
+html, body {
+	padding: 0;
+	margin: 0;
+
+	height: 100%;
+}
+
+html { background-color: #EEE; }
+
+body {
+	position: absolute;
+	
+	top: 0;
+	bottom: 0;
+	width: 640px;
+	left: calc( (100% - 640px) / 2 );
+
+	overflow: hidden;
+}
