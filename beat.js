@@ -124,6 +124,35 @@ function placeRow(trackDiv) {
 
 
 //////////////////////////////////////////////////////////////////////////////
+// Generating individual cells
+
+function cellsFromTrackAndAttrs(track, attrs) {
+	var cells = [	// A list of pairs containing the 1) class we want in a cell,
+					// and 2) the content we want in the cell
+	['spotify-embed', SPIframe(track, 'compact')],
+	['artist', attrs['data-artist']],
+	['title', attrs['data-title']],
+	['tempo', typeof attrs['data-tempo'] == 'number' ? // if we have a number
+				Math.round(attrs['data-tempo']) : // round it
+				attrs['data-tempo']] // otherwise, set it to the default '-'
+	];
+
+	// (1) Iterate over those cells & wrap that content in an appropriate Node
+	for (var i = 0; i < cells.length; i++) {
+	cells[i][1] = entag('div',					// (2) Reset the second element
+		{'class': 'cell' + ' ' + cells[i][0]},	// use the 1st element as class
+		cells[i][1]);							// and 2nd as content
+	}
+
+	// (2) a list of just each item's _2nd_ element (the wrapped content)
+	// You can read more about map at:
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+	return cells.map(function(c) { return c[1]; });
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
 // Utility functions
 
 function entag(tag, attributes, content) {
