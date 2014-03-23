@@ -153,7 +153,48 @@ function cellsFromTrackAndAttrs(track, attrs) {
 
 
 //////////////////////////////////////////////////////////////////////////////
+// Spotify & EchoNest data collection
+
+function analyse(track) {
+	// This function is where the bulk of the API calls are being made from,
+	// it gathers the info from Spotify and EchoNest which we load into the
+	// track object in tracks[]
+
+	track.echo = ENSearch(track) || null;	// This lets us set a variable to 
+											// the results of ENSearch, or if
+											// there are no results, null
+	if (track.echo) { // if we had results
+		track.echo.audio_summary = ENAudioSummary(track);
+		track.echo.audio_analysis = ENAudioAnalysis(track);
+	}
+
+	track.spotify = track.spotify || SPMetadata(track);
+}
+
+
+
+//////////////////////////////////////
 // Spotify functionality
+
+function SPSearch(type, query) {
+	// (1) This function interfaces with Spotify's basic search API
+	//
+	// Sample query: http://ws.spotify.com/search/1/track.json?q=beyonc%C3%A9
+	//
+	// You can read more about it at:
+	// https://developer.spotify.com/technologies/web-api/
+
+	var url = [
+		'https://ws.spotify.com/search/1/', // Spotify's API "endpoint"
+		type + '.json', // we want our results in JSON
+		'?q=' + encodeURIComponent(query)].join('');
+	// Oftentimes, when you're constructing a URL, you need to make sure that 
+	// things you are putting in the URL (like spaces or slashes) are formatted
+	// appropriately; this is what encodeURIComponent does.
+
+	return JSON.parse(httpGET(url)); // Actually GET and parse the results
+}
+
 
 function SPIframe(track) {
 	// (1) This function creates the iframe element we use to add embed
@@ -245,6 +286,96 @@ function setInters(e) {
 }
 
 
+function SPMetadata(track) {
+	// (1) This function queries Spotify's metadata API for information _about_
+	// songs, like album covers or artists or. . .
+	//
+	// You can read more about it at:
+	// https://developer.spotify.com/technologies/web-api/
+	//
+	// (1) We need to use https://en.wikipedia.org/wiki/JSONP to 
+	// grab the data-- Basically, we tell the server the name of a function
+	// (loadSPMetadata) for us which they'll return a .js file running it,
+	// passing the data we asked for as an argument.
+	//
+	// This lets us load the metadata in a <script> tag, which when run, calls
+	// our function with Spotify's data
+	
+	// Construct the URL
+	var url = 'https://embed.spotify.com/oembed/?url=' + track.href + '&callback=loadSPMetadata';
+	
+	// Make a script element which will load that URL
+	script = document.createElement("script");
+	script.type = "text/javascript";
+	script.src = url;
+	
+	// And insert that script element into our document
+	document.getElementsByTagName('html')[0].appendChild(script);
+
+	return track.spotify || null;
+}
+
+
+function loadSPMetadata(rawMetadata) {
+	// (1) This is the function we're asking Spotify to run on its data; it 
+	// takes Spotify's raw response as an argument
+
+	var metadata = parseSPMetadata(rawMetadata);
+	trackByHref(metadata[0]).spotify = metadata[1];	// Load the metadata into
+													// the track.spotify attr 
+
+	return metadata[1];
+}
+
+
+function parseSPMetadata(metadata) {
+	// (1) This is a function to, given some metadata, figure out which 
+	// song the metadata belongs to.
+
+	var href = trackHash(metadata.html);
+	return [href, metadata];
+}
+
+
+function trackHash(SPIframe) {
+	// (2) This is a function to, given Spotify's metadata--which includes
+	// the html needed to embed an iframe--extract the track's unique
+	// spotify URL.
+	//
+	// (3) To do this, we use "regular expressions"--these let you search
+	// for, match, and extract bits of text based on arbitrary patterns--
+	//
+	// (3) You can read more about them at:
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+
+	var trackHashRE = /.+(spotify:track:[A-Za-z0-9]+).+/;
+	return SPIframe.replace(trackHashRE, '$1');
+}
+
+
+function artists(track, separator) {
+	// (2) This is a basic function to give us a string for a track's artist.
+	// Since there can be multiple artists, we need to concatenate the
+	// track.artist object
+
+	if (typeof(separator) === "undefined") {
+		// This lets us have a default argument/separator; if you don't pass
+		// one we assume '&'
+		separator = ' & ';
+	}
+
+	var artistNames = track.artists.map(function(t) { return t.name; });
+	return artistNames.join(separator);
+}
+
+
+function trackByHref(href) {
+	// (2) This function simply lets us grab the track object by spotify URL
+	
+	return tracks.filter(function(t) { return (t.href == href); })[0];
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////
 // Utility functions
@@ -291,4 +422,20 @@ function smartInsert(content, container) {
 		span.innerHTML = stringContent;
 		smartInsert(span, container);
 	}
+}
+
+
+function httpGET(url)
+{
+	// (1) This function lets us, in some ways, simulate a browser and go
+	// visit a particular URL programmatically, and returns the results.
+	//
+	// You can read more about it at:
+	// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, false);
+    xhr.send();
+
+    return xhr.responseText;
 }
