@@ -153,6 +153,71 @@ function cellsFromTrackAndAttrs(track, attrs) {
 
 
 //////////////////////////////////////////////////////////////////////////////
+// Playback functionality
+
+function setCurrentTrack(track) {
+	// (1) This function implements the interface functionality to change the 
+	// content of our info-container and animating the slide-down transition
+	// (as well as, via CSS, the highlighted track change) when we select a
+	// track by clicking on its .inter.
+
+	if (currentTrack) {
+		// (1) If there is a currentTrack, unhighlight it
+		var currentTR = document.getElementById(currentTrack.href);
+		currentTR.classList.remove('current-track');
+	}
+
+	// (1) Highlight the new track
+	currentTrack = track;
+	var trackDiv = document.getElementById(track.href);
+	trackDiv.classList.add('current-track');
+
+	// (1) Set the cover album art to the URL grabbed from Spotify metadata
+	document.getElementById('cover').style.backgroundImage = 'url(' + coverURL(track) + ')';
+
+	// (1) Modify the displayed artist and track name
+	document.getElementById('track-artist').innerHTML = artists(track);
+	document.getElementById('track-name').innerHTML = track.name;
+
+	// (1) Fade in all the children of #info-container-- i.e. our track
+	// info and album cover	
+	document.getElementById('cover-container').style.opacity = 1;
+	document.getElementById('track-data-container').style.opacity = 1;
+
+	// (1) Move our container down to display the info-container
+	document.getElementById('container').style.top = (240 + 10) + 'px';
+}
+
+
+function inter() {
+	// (1) This function generates a simple div we'll use as an overlay to
+	// intercept events
+
+	var interstitial = document.createElement('div');
+	interstitial.setAttribute('class', 'inter');
+	interstitial.addEventListener('click', setInters);
+
+	return interstitial;
+}
+
+
+function setInters(e) {
+	// (1) Every time an .inter is clicked, we want to change the currentTrack
+	// reset the other .inters, and hide the one just clicked.
+
+	var href = e.toElement.parentNode.getAttribute('data-contained-track');
+	var track = trackByHref(href);
+	setCurrentTrack(track);
+
+	var inters = document.getElementsByClassName('inter');
+	for (var i = 0; i < inters.length; i++) {
+		inters[i].style.display = 'initial';
+	}
+	e.toElement.style.display = 'none';
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
 // Spotify & EchoNest data collection
 
 function analyse(track) {
@@ -258,34 +323,6 @@ function SPIframeAttrs(track) {
 }
 
 
-function inter() {
-	// (1) This function generates a simple div we'll use as an overlay to
-	// intercept events
-
-	var interstitial = document.createElement('div');
-	interstitial.setAttribute('class', 'inter');
-	interstitial.addEventListener('click', setInters);
-
-	return interstitial;
-}
-
-
-function setInters(e) {
-	// (1) Every time an .inter is clicked, we want to change the currentTrack
-	// reset the other .inters, and hide the one just clicked.
-
-	var href = e.toElement.parentNode.getAttribute('data-contained-track');
-	var track = trackByHref(href);
-	setCurrentTrack(track);
-
-	var inters = document.getElementsByClassName('inter');
-	for (var i = 0; i < inters.length; i++) {
-		inters[i].style.display = 'initial';
-	}
-	e.toElement.style.display = 'none';
-}
-
-
 function SPMetadata(track) {
 	// (1) This function queries Spotify's metadata API for information _about_
 	// songs, like album covers or artists or. . .
@@ -373,6 +410,14 @@ function trackByHref(href) {
 	// (2) This function simply lets us grab the track object by spotify URL
 	
 	return tracks.filter(function(t) { return (t.href == href); })[0];
+}
+
+
+function coverURL(track) {
+	// (1) This function grabs the cover thumbnail URL that the Spotify API 
+	// provides us with and modifies it to grab the hi-res, unbranded version
+
+	return track.spotify.thumbnail_url.replace('/cover/', '/640/');
 }
 
 
