@@ -131,12 +131,44 @@ body {
 
 
 /**************************************
+* Styling of overlay, scrolling functionality of tracklist */
+
+#tracklist .body {
+	position: absolute;
+	
+	top: 80;
+	bottom: -1px; /* To hide a 1px dashed bottom track border */
+
+	width: 100%;
+
+	overflow: scroll;
+}
+
+#tracklist .overlay:before, #info-container {
+	box-shadow: inset 1px 1px 9px 1px #000;
+}
+
+#tracklist .overlay:before {
+	content: '';
+
+	position: absolute;
+
+	width:100%;
+	height: 100%;
+
+	top: 80px;
+
+	z-index: 100; /* Ensures the overlay is on top of everything else */
+
+	pointer-events: none; /* Precents interception of click & hover events */
+}
+
+
+/**************************************
 * general .cell and .row styling (avoiding tables because of a variety of
   defaults we'd have to undo and fight with later) */
 
 .cell {
-	display: inline-block;
-	    
     float: left;
 
 	height: 80px;
@@ -144,9 +176,9 @@ body {
 
 	text-align: center;
 
-	white-space: nowrap;
+	white-space: nowrap; /* We don't want any multiline cells */
 	overflow: hidden;
-    text-overflow: ellipsis; /*TK*/
+    text-overflow: ellipsis; /* This replaces too-long text with '...' */
 }
 
 .row {
@@ -188,3 +220,11 @@ sixths, deciding that .tempo should be one half .artist and one-third title */
 .artist { width: calc( (100% - (5em + 1em)) * 2/6); }
 .title  { width: calc( (100% - (5em + 1em)) * 3/6); }
 .tempo  { width: calc( (100% - (5em + 1em)) * 1/6); }
+
+
+.track.row {
+	margin-left: 9px;
+	margin-right: 9px;
+
+	width: calc(640px - 2*9px);
+}
