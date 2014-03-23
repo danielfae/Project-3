@@ -377,6 +377,101 @@ function trackByHref(href) {
 
 
 
+//////////////////////////////////////
+// EchoNest functionality
+
+// (1) Spotify's API is open to anyone, for EchoNest's you need to sign up for 
+// your own API key -- this is a credential that lets EchoNest keep track of 
+// who is using their API how.  You can read more about EchoNest's API, 
+// including how to get a key, at http://developer.echonest.com/docs/v4
+
+var ENAPI = 'https://developer.echonest.com/api/v4/';
+var ENAPIKey = '0TPFPI9TGBX5CJU49';
+
+
+function ENSearch(track) {
+	// (1) This function takes a track (which you may remember we got from 
+	// Spotify's API) and searches EchoNest for it, returning the first
+	// result if there is one
+
+	var artistQuery = artists(track, ' ');
+	var titleQuery = track.name;
+
+	var ENResults = ENSongSearch({'artist': artistQuery, 'title': titleQuery});
+
+	if (ENResults[0]) { return ENResults[0]; }
+	// else
+	return null;
+}
+
+
+function ENSongSearch(parameters) {
+	// (1) This function searches _just_ EchoNest's song API and returns the 
+	// parsed JSON object
+	//
+	// An example query URL:
+	// http://developer.echonest.com/api/v4/song/search?api_key=0TPFPI9TGBX5CJU49&format=json&results=1&artist=radiohead&title=karma%20police
+
+	// Constructing the URL we'll use 
+	parameters['format'] = 'json';
+	var songSearchAPI = ENAPI + 'song/search';
+	var url = [
+		songSearchAPI,
+		'?api_key=' + ENAPIKey,
+		urlEncodeParams(parameters)].join('');
+
+	return JSON.parse(httpGET(url)).response.songs; // grabbing just songs info
+}
+
+
+function ENAudioAnalysis(audioSummariedTrack) {
+	// (1) This function takes a track which _already has an audio_summary_ to
+	// go get a full audio_analysis from EchoNest.  You can read more about
+	// the audio_analysis at:
+	// http://developer.echonest.com/docs/v4/_static/AnalyzeDocumentation.pdf
+
+	return JSON.parse(httpGET(audioSummariedTrack.echo.audio_summary.analysis_url));
+}
+
+
+function ENAudioSummary(echoedTrack) {
+	// (1) This function runs on a track which _already has the basic EchoNest
+	// info_ to grab the audio_summary.  You can read more about the summary:
+	// https://developer.echonest.com/raw_tutorials/faqs/faq_04.html
+
+	var audioResult = ENSongMetadata(echoedTrack.echo.id, 'audio_summary');
+
+	if (audioResult.audio_summary) { return audioResult.audio_summary; }
+	// else
+	return null;
+}
+
+
+function ENSongMetadata(ENid, bucket) {
+	// (1) This function takes an EchoNest ID and a type of metadata to get
+	// (EchoNest calls this a 'bucket').
+	//
+	// Sample query:
+	// http://developer.echonest.com/api/v4/track/profile?api_key=FILDTEOIK2HBORODV&format=json&id=TRTLKZV12E5AC92E11&bucket=audio_summary
+
+	// Constructing the URL
+	parameters = {
+		'id': ENid,
+		'bucket': bucket,
+		'format': 'json'};
+	var songMetadataEndpoint = ENAPI + 'song/profile';
+	var url = [
+		songMetadataEndpoint,
+		'?api_key=',
+		ENAPIKey,
+		urlEncodeParams(parameters)].join('');
+
+	// Grabbing the metadata
+	return JSON.parse(httpGET(url)).response.songs[0];
+}
+
+
+
 //////////////////////////////////////////////////////////////////////////////
 // Utility functions
 
@@ -425,8 +520,7 @@ function smartInsert(content, container) {
 }
 
 
-function httpGET(url)
-{
+function httpGET(url) {
 	// (1) This function lets us, in some ways, simulate a browser and go
 	// visit a particular URL programmatically, and returns the results.
 	//
@@ -438,4 +532,23 @@ function httpGET(url)
     xhr.send();
 
     return xhr.responseText;
+}
+
+
+function urlEncodeParams(parameters) {
+	// (1) This function, given a set of parameters for a query, returns a
+	// string which we can append to the end of a URL to pass parameters
+	// for a query in the URL
+
+	var string = '';
+
+	for (var key in parameters) {
+		// You can read more about encodeURIComponent at:
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+		var cleanKey = encodeURIComponent(key);
+		var cleanParam = encodeURIComponent(parameters[key]);
+		string += ('&' + cleanKey + '=' + cleanParam);
+	}
+
+	return string;
 }
