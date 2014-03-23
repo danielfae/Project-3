@@ -107,3 +107,84 @@ body {
 
 #track-artist { top: 2em; }
 #track-name { bottom: 2em; }
+
+
+/*****************************************************************************
+* Tracklist interface */
+
+#tracklist-container {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+
+	width: 640px;
+}
+
+#tracklist {
+	height: 100%;
+	width: 100%;
+
+	font-family: 'Open Sans', sans-serif;
+}
+
+#tracklist .body { background-color: #ccc }
+
+
+/**************************************
+* general .cell and .row styling (avoiding tables because of a variety of
+  defaults we'd have to undo and fight with later) */
+
+.cell {
+	display: inline-block;
+	    
+    float: left;
+
+	height: 80px;
+    line-height: 80px;
+
+	text-align: center;
+
+	white-space: nowrap;
+	overflow: hidden;
+    text-overflow: ellipsis; /*TK*/
+}
+
+.row {
+	position: absolute;
+	
+	height: 80px;
+	width: 100%;
+}
+
+
+/**************************************
+* Header */
+
+.header.row {
+	/* Making the header row overlap the edges of the overlay to provide the
+	illusion of a solid strip, sliding it left to keep the header centered. */
+	padding-left: 5%;
+	padding-right: 5%;
+	margin-left: calc(-1 * (5% + 5%) / 2);
+
+	/* Accommodating the up/down arrows in the sort-container (25px tall) */
+	line-height: calc(80px - 25px);
+}
+
+.header .cell {
+	font-family: 'Codystar', cursive;
+	font-size: 1.25em;
+
+	text-transform: uppercase;
+}
+
+
+/**************************************
+* Column styling */
+
+/* Here we're fixing the album width and dividing the rest of the space into 
+sixths, deciding that .tempo should be one half .artist and one-third title */
+.album  { width: calc( 5em + 1em); }
+.artist { width: calc( (100% - (5em + 1em)) * 2/6); }
+.title  { width: calc( (100% - (5em + 1em)) * 3/6); }
+.tempo  { width: calc( (100% - (5em + 1em)) * 1/6); }

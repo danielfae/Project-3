@@ -1,6 +1,7 @@
 <html>
 
 <head>
+    <link href='http://fonts.googleapis.com/css?family=Codystar|Open+Sans' rel='stylesheet' type='text/css'>
     <link href='./beat.css' rel='stylesheet' type='text/css'>
 </head>
 
@@ -14,6 +15,38 @@
             <div id='track-data-container'>
                 <div id='track-artist'></div>
                 <div id='track-name'></div>
+            </div>
+        </div>
+
+
+        <!-- #tracklist-container is the bottom panel, w/ headings & tracks -->
+        <div id='tracklist-container' class='container'>
+            <div id='tracklist'>
+
+                <div class='header row'>
+                    <div class='cell album'>
+                        album
+                    </div>
+
+                    <div class='cell artist'>
+                        artist
+                    </div>
+
+                    <div class='cell title'>
+                        title
+                    </div>
+
+                    <div class='cell tempo'>
+                        tempo
+                    </div>
+                </div>
+
+                <!-- .overlay used as a placeholder for pseudo:before to apply box-shadow
+                and keep the shadow as the .body div scrolls behind -->
+                <div class='overlay'></div>
+
+                <!-- .body contains actual tracks, i.e. it excludes header -->
+                <div class='body'></div>
             </div>
         </div>
 	</div>
