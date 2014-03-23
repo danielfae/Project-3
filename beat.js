@@ -472,6 +472,111 @@ function ENSongMetadata(ENid, bucket) {
 
 
 
+////////////////////////////////////////
+// Sketching loudness from EchoNest data
+
+function loudnessAt(track, time) {
+	// (1) This function finds the EchoNest measurement of how long a given
+	// track is at a given time.
+
+	// (3) "segments" are EchoNests objects for small bits of a song which are 
+	// acoustically pretty constant.  Read more about them at:
+	// http://developer.echonest.com/docs/v4/_static/AnalyzeDocumentation.pdf
+	var segments = track.echo.audio_analysis.segments;
+	
+	var timeCovered = 0;
+	
+	// (2) Search through and find the segment containing the time we seek;
+	// each segment is _not_ the same duration 
+	for (var i = 0; i < segments.length; i++) {
+		timeCovered += segments[i].duration;
+		if (timeCovered > time) { return segments[i].loudness_max; }
+	}
+	// else
+	return -1;
+}
+
+
+function loudnessSketch(track) {
+	// (2) This function _returns a function_ which Processing runs to make 
+	// our sketch.
+
+	function sketchProc(P) {
+		var myTrack = track;
+		
+		// (2) We'll plot loudness every 0.25 seconds
+		var dt = 0.25;
+		var numPoints = Math.round(myTrack.length)/dt;
+		
+		var loud = [];   // (2) an array to hold loudnesses
+		var points = []; // (2) an array to hold the points we'll plot
+
+		P.setup = function() {
+			P.size(640, 80);
+			if (track.echo) {
+				for (var i = 0; i < numPoints; i++) {
+					loud[i] = loudnessAt(track, dt*i);
+					points[i] = [i, loud[i]];
+				}
+
+				// (2) Scale our points down to fill up our width and height
+				points = scalePoints(points, P.width, P.height);
+
+
+				// (1) Draw our points in a slightly transparent black
+				P.noFill();
+				P.stroke(0, 0.25*255);
+				P.beginShape();
+				for (var j = 0; j < points.length; j++) {
+					var x = points[j][0];
+					var y = P.height + points[j][1];
+					P.curveVertex(x, y);
+				}
+				P.endShape();
+			}
+			else { console.log(track.name, "has no EchoNest data."); }
+		};
+
+		P.draw = function() {
+			// (2) Since we're not animating, we don't need anything in draw
+		};
+	}
+
+	return sketchProc;
+}
+
+
+function plotLoudness(track) {
+	// (1) In this function we actually attach the Processing sketch to our canvas
+
+	var P = new Processing(track.canvas, loudnessSketch(track));
+	
+	return P;
+}
+
+
+function rowBackground(row) {
+	// (1) This function actually plots the loudness in an orphaned canvas
+	// element--_i.e._ a canvas element not in the DOM--and then converts it
+	// to https://en.wikipedia.org/wiki/Base64 to construct an image we use
+	// as the background of a row, on the fly
+
+	var trackCanvas = document.createElement('canvas');
+	var track = trackByHref(row.id);
+	track.canvas = trackCanvas;
+	
+	plotLoudness(track);
+
+	// You can read more about this technique at:
+	// http://www.html5canvastutorials.com/advanced/html5-canvas-get-image-data-url/
+	var binaryImageData = trackCanvas.toDataURL("image/png");
+	row.style.backgroundImage = "url(" + binaryImageData + ")";
+
+	return binaryImageData;
+}
+
+
+
 //////////////////////////////////////////////////////////////////////////////
 // Utility functions
 
@@ -551,4 +656,45 @@ function urlEncodeParams(parameters) {
 	}
 
 	return string;
+}
+
+
+function scalePoints(points, xRangeMax, yRangeMax) {
+	// (2) This function takes a set of pairs of numbers (points), and scales
+	// them to fit as well as possible into a box with dimensions
+	// xRangeMax and yRangeMax
+	//
+	// (3) In it, we use techniques often found in 'functional programming',
+	// https://en.wikipedia.org/wiki/Functional_programming wherein
+	// 
+	// (3) Specifically, we rely on map and apply, which you can read about
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+	// and
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply
+	// respectively
+
+
+	// Grabbing our x- and y- points separately
+	var x = points.map(function(e) { return e[0]; });
+	var y = points.map(function(e) { return e[1]; });
+	
+	// Find the biggest and smallest x to get the range of each
+	var xRange = Math.max.apply(this, x) - Math.min.apply(this, x);
+	var yRange = Math.max.apply(this, y) - Math.min.apply(this, y);
+
+	// Figuring out how much we need to shrink our x's and y's by
+	var xRatio = xRange/xRangeMax;
+	var yRatio = yRange/yRangeMax;
+
+	// Actually shrinking our x's and y's
+	var newX = x.map(function(e) { return e/xRatio; });
+	var newY = y.map(function(e) { return e/yRatio; });
+
+	// Stitch our x's and y's back together into our scaled points list
+	var scaled = [];
+	for (var i = 0; i < points.length; i++) {
+		scaled.push([newX[i], newY[i]]);
+	}
+
+	return scaled;
 }
