@@ -37,6 +37,12 @@ window.onload = function () {
 		var div = trackDiv(tracks[i]);  // (1) create a div to hold it
 		insertTrackDiv(div, tracklist); // (1) put it into our list
 	}
+
+	// (1) Add click handlers to the sorting controls
+	var sortArrows = tracklist.querySelectorAll('a.sort');
+	for (var j = 0; j < sortArrows.length; j++) {
+		sortArrows[j].addEventListener('click', sortByMe, false);
+	}
 };
 
 
@@ -79,7 +85,7 @@ function rowAttrsFromTrack(track) {
 			// shortcut for writing out a full if/else statement.  You can read
 			// more about it at:
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_Operator
-			'data-tempo': track.echo ? track.echo.audio_summary.tempo : '-'
+			'data-tempo': track.echo ? track.echo.audio_summary.tempo : -1
 		};
 
 	return attrs;
@@ -132,9 +138,9 @@ function cellsFromTrackAndAttrs(track, attrs) {
 	['spotify-embed', SPIframe(track, 'compact')],
 	['artist', attrs['data-artist']],
 	['title', attrs['data-title']],
-	['tempo', typeof attrs['data-tempo'] == 'number' ? // if we have a number
+	['tempo', attrs['data-tempo'] > 0 ? // if we have a number
 				Math.round(attrs['data-tempo']) : // round it
-				attrs['data-tempo']] // otherwise, set it to the default '-'
+				'-'] // otherwise, display it as '-'
 	];
 
 	// (1) Iterate over those cells & wrap that content in an appropriate Node
@@ -215,6 +221,82 @@ function setInters(e) {
 	}
 	e.toElement.style.display = 'none';
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Sorting the tracklist by various headings
+
+function sortByMe(e) {
+	// (1) This function is a click handler which coordinates sorting a column
+
+	var arrow = e.toElement; // Which element received this event?
+	var heading = arrow.id.split('-')[1]; // Find out which heading is ours
+
+	var ascending = null;
+	if (arrow.classList.contains('up')) { ascending = 'ascending'; }
+	else { ascending = 'descending'; }
+
+	sortTableBy(tracklist, sortBy(heading, ascending));
+}
+
+
+function sortTableBy(table, sortingFunction) {
+	// (1) This function actually sorts the table
+
+	// (3) Since our elements aren't ordered in the DOM, to find their 
+	// current order, we need to sort by their playlist-position when we grab
+	// them
+	var toSort = Array.prototype.slice.call(
+		table.getElementsByClassName('track row')).sort(
+			sortBy('playlist-position', 'ascending'));
+
+	toSort.sort(sortingFunction);	// Note that sort can take an argument used
+									// used to determine order
+
+	// (2) Now that we've sorted the list, change the playlist position attributes
+	for (var i = 0; i < toSort.length; i++) {
+		toSort[i].setAttribute('data-playlist-position', i);
+		placeRow(toSort[i]);
+	}
+}
+
+
+function sortBy(whichClass, direction) {
+	// (2) This function returns a function which Array.sort can use to 
+	// determine whether one thing is 'less' or 'greater' than another--
+	//
+	// (3) This ability to change the sort order means that we can sort
+	// arbitrary collections of things that don't have a natural order--
+	// For numbers and words, we have a notion of order (numeric and 
+	// alphabetical, respectively).  This lets us sort in ascending or 
+	// descending order by writing our own sort function.
+	//
+	// (3) You can read more about Array.sort at:
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+
+	var directions = {'ascending': -1, 'descending': 1};
+	var sortDirection = directions[direction];
+
+	function sortFunction(track1, track2)  {
+		var attr1 = track1.getAttribute('data-' + whichClass);
+		var attr2 = track2.getAttribute('data-' + whichClass);
+
+		// (2) Check to see if attrs can be interpreted numerically, if so treat
+		// them as such
+		attr1 = parseFloat(attr1) ? parseFloat(attr1) : attr1;
+		attr2 = parseFloat(attr2) ? parseFloat(attr2) : attr2;
+
+		// Array.sort is expecting to receive something < 0, 0, or > 0
+		if (attr1 == attr2) { return 0; }
+		else if (attr1 < attr2) { return 1*sortDirection; }
+		// else
+		return -1*sortDirection;
+	}
+
+	return sortFunction;
+}
+
 
 
 //////////////////////////////////////////////////////////////////////////////
