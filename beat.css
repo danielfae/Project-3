@@ -223,12 +223,31 @@ sixths, deciding that .tempo should be one half .artist and one-third title */
 .tempo  { width: calc( (100% - (5em + 1em)) * 1/6); }
 
 
+/**************************************
+* Track row styling */
+
 .track.row {
 	margin-left: 9px;
 	margin-right: 9px;
 
 	width: calc(640px - 2*9px);
 }
+
+.track {
+	display: block;
+
+	margin-left: auto;
+	margin-right: auto;
+
+	margin-top: calc( 1em + 1px );
+	padding-bottom: calc( (1em + 1px) / 2 - 1px );
+	
+	border-bottom: 1px dashed #555;
+
+	opacity: 0.5;
+	-webkit-transition-duration: 0.75s;
+}
+
 
 /**************************************
 * Up-down arrows for heading sorting */
