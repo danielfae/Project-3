@@ -153,6 +153,100 @@ function cellsFromTrackAndAttrs(track, attrs) {
 
 
 //////////////////////////////////////////////////////////////////////////////
+// Spotify functionality
+
+function SPIframe(track) {
+	// (1) This function creates the iframe element we use to add embed
+	// functionality--
+	//
+	//	Sample iframe embed code:
+	// <iframe src="https://embed.spotify.com/?uri=spotify:track:4bz7uB4edifWKJXSDxwHcs" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+
+	var iframe = document.createElement('iframe');
+
+	var attrs = SPIframeAttrs(track);
+	for (var attr in attrs) { iframe.setAttribute(attr, attrs[attr]); }
+
+	var embedContainer = document.createElement('div');
+	embedContainer.setAttribute('class', 'embed-container');
+	// (2) We're storing the track.href in the data-contained-track attribute
+	// of the iframe so we can easily find out which track is in the iframe
+	embedContainer.setAttribute('data-contained-track', iframe.id);
+
+
+	// (3) A lot of complexities are introduced when dealing with iframes or 
+	// cross posted/hosted scripts or content.  Many of the things you 
+	// expect to be able to do--like listen for a click event--you can't
+	// because it poses a security risk.  You can read more about this:
+	// https://en.wikipedia.org/wiki/Cross-site_scripting
+	//
+	// For us, it means that we needed to basically insert another div
+	// in between our user and the iframe and force people to 'double-click'
+	// so that we can detect events with some reasonableness.
+	//
+	// This is what the 'inter' element (short for interstitial) does--it's a
+	// transparent overlay we use to detect events.
+	embedContainer.appendChild(iframe);
+	embedContainer.appendChild(inter());
+
+	return embedContainer;
+}
+
+
+function SPIframeAttrs(track) {
+	// (2) This function creates a dictionary of the attributes we want our 
+	// embedded spotify player to have
+
+	// Sizes Spotify supports
+	var sizes = {'large': 300, 'compact': 80};
+
+
+	var attrs = {
+		'src': 'https://embed.spotify.com/?uri=' + track.href,
+		'width': 80,
+		'height': sizes['compact'],
+		'frameborder': 0,
+		'allowtransparency': 'true',
+		'class': 'track-container',
+		// (3) Our trackDiv's _also_ have this id, however, the iframe is 
+		// a separate document, so they do not conflict--
+		'id': track.href
+	};
+
+	return attrs;
+}
+
+
+function inter() {
+	// (1) This function generates a simple div we'll use as an overlay to
+	// intercept events
+
+	var interstitial = document.createElement('div');
+	interstitial.setAttribute('class', 'inter');
+	interstitial.addEventListener('click', setInters);
+
+	return interstitial;
+}
+
+
+function setInters(e) {
+	// (1) Every time an .inter is clicked, we want to change the currentTrack
+	// reset the other .inters, and hide the one just clicked.
+
+	var href = e.toElement.parentNode.getAttribute('data-contained-track');
+	var track = trackByHref(href);
+	setCurrentTrack(track);
+
+	var inters = document.getElementsByClassName('inter');
+	for (var i = 0; i < inters.length; i++) {
+		inters[i].style.display = 'initial';
+	}
+	e.toElement.style.display = 'none';
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
 // Utility functions
 
 function entag(tag, attributes, content) {

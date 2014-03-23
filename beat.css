@@ -292,3 +292,30 @@ a.sort {
 
 	border-top: 5px solid FireBrick;
 }
+
+
+
+/**************************************
+* Styling of Spotify embed */
+
+.embed-container {
+	margin-left: 1em;
+	position: relative;
+}
+
+.embed-container, .inter {
+	width: 80px;
+	height: 80px;
+}
+
+.inter {
+	position: absolute;
+
+	top: 0;
+	left: 0;
+}
+
+.track iframe {
+	width: 80px;
+	height: 80px;
+}
