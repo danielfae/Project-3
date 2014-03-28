@@ -237,14 +237,9 @@ function sortByMe(e) {
     var arrow = e.toElement; // Which element received this event?
     var heading = arrow.id.split('-')[1]; // Find out which heading is ours
 
-    var ascending = null;
-    if (arrow.classList.contains('up')) {
-        ascending = 'ascending';
-    } else {
-        ascending = 'descending';
-    }
+    var direction = arrow.classList.contains('up') ? 'ascending': 'descending';
 
-    sortTableBy(tracklist, sortBy(heading, ascending));
+    sortTableBy(tracklist, sortBy(heading, direction));
 }
 
 
