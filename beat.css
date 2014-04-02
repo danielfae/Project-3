@@ -14,8 +14,8 @@ body {
 	
 	top: 0;
 	bottom: 0;
-	width: 640px;
-	left: calc( (100% - 640px) / 2 );
+	width: 800px;
+	left: calc( (100% - 800px) / 2 );
 
 	overflow: hidden;
 }
@@ -40,7 +40,7 @@ body {
 	position: absolute;
 	top: -240px;
 
-	width: 640px;
+	width: 800px;
 	height: 240px;
 
 	background-color: #ccc
@@ -100,7 +100,7 @@ body {
 #track-data-container > div {
 	position: absolute;
 
-	width: calc(640px - 240px);
+	width: calc(800px - 240px);
 	height: 25%;
 	line-height: 2em;
 	
@@ -121,7 +121,7 @@ body {
 	top: 0;
 	bottom: 0;
 
-	width: 640px;
+	width: 800px;
 }
 
 #tracklist {
@@ -222,9 +222,10 @@ body {
 /* Here we're fixing the album width and dividing the rest of the space into 
 sixths, deciding that .tempo should be one half .artist and one-third title */
 .album  { width: calc( 5em + 1em); }
-.artist { width: calc( (100% - (5em + 1em)) * 2/6); }
-.title  { width: calc( (100% - (5em + 1em)) * 3/6); }
-.tempo  { width: calc( (100% - (5em + 1em)) * 1/6); }
+.artist { width: calc( (100% - (5em + 1em)) * 2/7); }
+.title  { width: calc( (100% - (5em + 1em)) * 3/7); }
+.tempo  { width: calc( (100% - (5em + 1em)) * 1/7); }
+.length { width: calc( (100% - (5em + 1em)) * 1/7); }
 
 
 /**************************************
@@ -234,7 +235,7 @@ sixths, deciding that .tempo should be one half .artist and one-third title */
 	margin-left: 9px;
 	margin-right: 9px;
 
-	width: calc(640px - 2*9px);
+	width: calc(800px - 2*9px);
 }
 
 .track {
