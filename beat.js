@@ -85,7 +85,8 @@ function rowAttrsFromTrack(track) {
         // shortcut for writing out a full if/else statement.  You can read
         // more about it at:
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_Operator
-        'data-tempo': track.echo ? track.echo.audio_summary.tempo : -1
+        'data-tempo': track.echo ? track.echo.audio_summary.tempo : -1,
+        'data-length': track.echo ? track.echo.audio_summary.duration : -1
     };
 
     return attrs;
@@ -139,6 +140,10 @@ function cellsFromTrackAndAttrs(track, attrs) {
         ['title', attrs['data-title']],
         ['tempo', attrs['data-tempo'] > 0 ? // if we have a number
             Math.round(attrs['data-tempo']) : // round it
+            '-'
+        ], // otherwise, display it as '-'
+        ['length', attrs['data-length'] > 0 ? // if we have a number
+            Math.round(attrs['data-length']) : // round it
             '-'
         ] // otherwise, display it as '-'
     ];
