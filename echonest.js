@@ -145,7 +145,7 @@ function loudnessSketch(track) {
         var points = []; // (2) an array to hold the points we'll plot
 
         P.setup = function() {
-            P.size(640, 80);
+            P.size(tracklist.offsetWidth, 80);
             if (track.echo) {
                 for (var i = 0; i < numPoints; i++) {
                     loud[i] = loudnessAt(track, dt * i);
