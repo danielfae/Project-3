@@ -66,7 +66,49 @@ function trackDiv(track) {
 
     rowBackground(row); // (1) and add a background to the row
 
+    row = nullify(row); // (2) and add null to the necessary cells in the row
+
     return row;
+}
+
+
+function nullify(row) {
+    // (2) A function to actually assign the null class to null cells in a row
+
+    // Identify the null cells
+    var cellsToNull = nullCells(row);
+    
+    // A function we use to modify a nodeList
+    function addNull(cell) { cell.classList.add('null'); }
+
+    for (var key in cellsToNull) {
+        if (cellsToNull[key]) {
+            var cellNodes = row.getElementsByClassName(key.replace(/^data-/, ''));
+            var cells = Array.prototype.slice.call(cellNodes);
+            cells.map(addNull);
+        }
+    }
+
+    return row;
+}
+
+
+function nullCells(trackDiv) {
+    // (2) We're using this function to label some cells null so that CSS
+    // styling (e.g. for the bpm and s units) isn't applied to null fields
+
+    var nullTests = {
+        // A dictionary of functions we'll use to test if the cell is null
+        'data-tempo': function (tempo) { return isNaN(tempo) || tempo < 0; },
+        'data-length': function (length) { return isNaN(length) || length < 0; }
+    };
+
+    for (var key in nullTests) {
+        // re-define nullTests with whether that attribute is null
+        nullTests[key] = trackDiv.hasAttribute(key) ? nullTests[key](trackDiv.getAttribute(key)) : null;
+    }
+
+    return nullTests;
 }
 
 

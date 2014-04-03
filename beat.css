@@ -227,6 +227,11 @@ sixths, deciding that .tempo should be one half .artist and one-third title */
 .tempo  { width: calc( (100% - (5em + 1em)) * 1/7); }
 .length { width: calc( (100% - (5em + 1em)) * 1/7); }
 
+.cell:after { font-size: 0.5em; }
+.cell.null:after { content: ''; }
+
+.tempo:after { content: 'bpm'; }
+.length:after { content: 's'; }
 
 /**************************************
 * Track row styling */
