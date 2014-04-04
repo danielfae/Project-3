@@ -22,7 +22,7 @@ Using EchoNest's API, add another column of information on each track and modify
 
 ### (2) Visualize another EchoNest attribute
 
-Choose another piece of data from EchoNest's API to visualize using a Processing sketch, either for a currently playing song or for all the songs.
+Choose another piece of data from EchoNest's API to visualize using a Processing sketch, either for a currently playing song or for all the songs.  You may find the [Analyzer Documentation](http://developer.echonest.com/docs/v4/_static/AnalyzeDocumentation.pdf) useful in understanding the full range of under-documented API features.  Similarly, the [EchoNest lab](http://static.echonest.com/labs/) may be a good starting point for brainstorming extensions and/or seeing how they work.
 
 ![Visualize a new EchoNest attribute](https://raw.githubusercontent.com/DGMD-E-15/Project-3/master/README_media/NewVisualizationExtension.png)
 
