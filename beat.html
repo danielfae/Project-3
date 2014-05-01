@@ -3,9 +3,35 @@
 <head>
     <link href='http://fonts.googleapis.com/css?family=Codystar|Open+Sans' rel='stylesheet' type='text/css'>
     <link href='./beat.css' rel='stylesheet' type='text/css'>
+
+    <style>
+    canvas{
+        outline: none;
+        
+    }
+    /* So that when we click, the canvas isn't outlined */
+    </style>
 </head>
 
 <body>
+    <canvas id="circles"></canvas>
+        <div id="landing">
+        <form>
+            <input type="text" id="artist-form" placeholder="add artist">
+        </form>
+        <div class="extra">
+            <div id="reload">
+                <a href="#"><img src="img/Flaticon_2179.png"></a>
+            </div>
+        </div>
+
+    <div id="searchbox">
+          First name: <input type="text" name="fname"><br>
+          Last name: <input type="text" name="lname"><br>
+          <input type="submit" value="Submit">
+    </div>
+        </div>
+    
     <div id='container'>
         <!-- #info-container is the top panel, with album art and info -->
         <div id='info-container' class='container'>
@@ -107,6 +133,8 @@
     </div>
 
     <script src='./processing.js'></script>
+    <script src='processing-1.4.1.js'></script>
+    <script src='landing.js'></script>
     <script src='./spotify.js'></script>
     <script src='./echonest.js'></script>
     <script src='./beat.js'></script>
