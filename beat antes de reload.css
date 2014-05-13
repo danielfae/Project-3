@@ -11,40 +11,13 @@ html { background-color: #EEE; }
 
 body {
 	position: absolute;
+	
 	top: 0;
 	bottom: 0;
-	width: 640px;
-	left: calc( (100% - 640px) / 2 );
-}
+	width: 800px;
+	left: calc( (100% - 800px) / 2 );
 
-.extra {
-	position: relative;
-	background-color: white;
-	border-radius: 5px;
-	border: 1px solid #ccc;
-}
-
-.one{
-	left: -77px;
-	width: 82px;
-	top: 128px;
-}
-
-.two{
-	left: -350px;
-	width: 370px;
-	padding: 10px;
-	top: 320px;
-}
-
-.extra img {
-	width: 32px;
-	height: 32px;
-	margin: 10px;
-}
-
-canvas {
-	border-radius: 5px;
+	overflow: hidden;
 }
 
 #container {
@@ -67,10 +40,10 @@ canvas {
 	position: absolute;
 	top: -240px;
 
-	width: 640px;
+	width: 800px;
 	height: 240px;
 
-	background-color: #ccc;
+	background-color: #ccc
 }
 
 #info-container > div {
@@ -85,7 +58,7 @@ canvas {
 /* #cover-container (album cover) */
 #cover-container {
 	position: relative;
-
+	
 	width: 240px;
 	height: 100%;
 
@@ -127,10 +100,10 @@ canvas {
 #track-data-container > div {
 	position: absolute;
 
-	width: calc(640px - 240px);
+	width: calc(800px - 240px);
 	height: 25%;
 	line-height: 2em;
-
+	
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -148,7 +121,7 @@ canvas {
 	top: 0;
 	bottom: 0;
 
-	width: 640px;
+	width: 800px;
 }
 
 #tracklist {
@@ -166,7 +139,7 @@ canvas {
 
 #tracklist .body {
 	position: absolute;
-
+	
 	top: 80;
 	bottom: -1px; /* To hide a 1px dashed bottom track border */
 
@@ -243,37 +216,23 @@ canvas {
 	line-height: calc(80px - 25px);
 }
 
-#artist-form {
-	font-size: 1em;
-	text-transform: uppercase;
-	border-radius: 5px;
-	
-	width: 80%;
-	margin-top: 15px;
-	margin-bottom: -3px;
-	text-align: center;
-
-}
-
-.disabled {
-	background-color: #EEE;
-	font-weight: 900;
-	font-family: 'Codystar', cursive;
-	font-size: 1.25em;
-	border: 0;
-	color: FireBrick;
-}
 
 /**************************************
 * Column styling */
 
-/* Here we're fixing the album width and dividing the rest of the space into
+/* Here we're fixing the album width and dividing the rest of the space into 
 sixths, deciding that .tempo should be one half .artist and one-third title */
 .album  { width: calc( 5em + 1em); }
-.artist { width: calc( (100% - (5em + 1em)) * 2/6); }
-.title  { width: calc( (100% - (5em + 1em)) * 2/6); }
-.tempo  { width: calc( (100% - (5em + 1em)) * 1/6); }
-.timesig  { width: calc( (100% - (5em + 1em)) * 1/6); }
+.artist { width: calc( (100% - (5em + 1em)) * 2/7); }
+.title  { width: calc( (100% - (5em + 1em)) * 3/7); }
+.tempo  { width: calc( (100% - (5em + 1em)) * 1/7); }
+.length { width: calc( (100% - (5em + 1em)) * 1/7); }
+
+.cell:after { font-size: 0.5em; }
+.cell.null:after { content: ''; }
+
+.tempo:after { content: 'bpm'; }
+.length:after { content: 's'; }
 
 /**************************************
 * Track row styling */
@@ -282,7 +241,7 @@ sixths, deciding that .tempo should be one half .artist and one-third title */
 	margin-left: 9px;
 	margin-right: 9px;
 
-	width: calc(640px - 2*9px);
+	width: calc(800px - 2*9px);
 }
 
 .track {
@@ -293,7 +252,7 @@ sixths, deciding that .tempo should be one half .artist and one-third title */
 
 	margin-top: calc( 1em + 1px );
 	padding-bottom: calc( (1em + 1px) / 2 - 1px );
-
+	
 	border-bottom: 1px dashed rgba(85, 85, 85, 1);
 
 	opacity: 0.5;
@@ -303,7 +262,7 @@ sixths, deciding that .tempo should be one half .artist and one-third title */
 .current-track {
 	background-color: FireBrick;
 
-	/* (3) Because we'll be setting the opacity of the current track to 1,
+	/* (3) Because we'll be setting the opacity of the current track to 1, 
 	we need to change the opacity of the border color to prevent its
 	border from appearing darker than other dividers. */
 
@@ -337,8 +296,8 @@ a.sort {
 .arrow {
 	position: absolute;
 
-	width: 0;
-	height: 0;
+	width: 0; 
+	height: 0; 
 
 	border-left: 5px solid transparent;
 	border-right: 5px solid transparent;
@@ -384,14 +343,6 @@ a.sort {
 }
 
 /**************************************
-* Styling for Processing */
-
-
-canvas {
-        outline: none;
-    }
-
-/**************************************
 * Styling of Circles 
 Background and Landing */
 #circles{
@@ -406,7 +357,7 @@ Background and Landing */
  #landing{
  	position: fixed;
  	top: 30%;
- 	left: 31%;
+ 	left: 35%;
  	height: 300px;
  	width:500px;
  	background: tomato;
@@ -419,37 +370,8 @@ Background and Landing */
 	position: relative;
 	width: 400px;
 	height: 200px;
-	top: 30%;
-	left: 30%;
+	top: calc(30%);
+	left: calc(30%);
 	background: white;
-	z-index: -300;
+	z-index: 3;
 }
-
-.extra {
- 	position: relative;
- 	left: -77px;
- 	background-color: FireBrick;
- 	width: 82px;
- 	top: 128px;
- 	border-radius: 5px;
- }
- 
- .extra img {
- 	width: 32px;
- 	height: 32px;
- 	margin: 10px;
-  }
-
-  .centro{
-  	top:85px;
-  	width: 90%;
-  	position: relative;
-	margin:0 auto;
-	text-align: center;
-  }
-  .parrafo{
- 	font-family: 'Codystar', serif;
-	font-size: 2em;
-	text-transform: uppercase;
-  }
-

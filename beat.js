@@ -1,5 +1,5 @@
-// We're going to try something new in these comments. Different comments are 
-// targeted at different levels of expertise.  In an effort to help you 
+// We're going to try something new in these comments. Different comments are
+// targeted at different levels of expertise.  In an effort to help you
 // ignore things that don't matter, we've labeled these:
 // (1) Need-to-know -- You won't know what's going on without this.
 // (2) Want-to-know -- If you wanted to recreate this, you'd need this.
@@ -15,37 +15,62 @@ var tracks = [];
 
 // (1) We're going to construct our search using Spotify's API, in our case
 // searching for Kanye West and limiting our results to 10 tracks
-var search = 'Kanye West';
+
 var maxTracks = 10;
 
 
+var canvas = document.getElementsByTagName('canvas')[0];
+var acousticness;
+var danceability;
+var duration;
+var energy;
+var key;
+var tempo;
 
 //////////////////////////////////////////////////////////////////////////////
 // Loading the page
+$( document ).ready(function() {
 
-// (1) When everything is loaded, then--
-window.onload = function() {
-    // (1) Grab the tracks from Spotify's search results
-    tracks = SPSearch('track', search).tracks;
+    // (1) When everything is loaded, then--
+    $( "#artist-form" ).keydown(function( event ) {
+        if ( event.which == 13 ) {
+            event.preventDefault();
 
-    // (1) Limit our results list
-    var numTracks = Math.min(maxTracks, tracks.length);
-    tracks = tracks.slice(0, numTracks);
+            search = $("#artist-form").val();
+            // document.getElementById('landing').setAttribute('style','left: 300px')
+            document.getElementById('landing').classList.add('animated');
+                document.getElementById('landing').classList.add('bounceOut');
 
-    // (1) Iterate over our tracks and 
-    for (var i = 0; i < numTracks; i++) {
-        var div = trackDiv(tracks[i]); // (1) create a div to hold it
-        insertTrackDiv(div, tracklist); // (1) put it into our list
-    }
+            // (1) Grab the tracks from Spotify's search results
+            tracks = SPSearch('track', search).tracks;
 
-    // (1) Add click handlers to the sorting controls
-    var sortArrows = tracklist.querySelectorAll('a.sort');
-    for (var j = 0; j < sortArrows.length; j++) {
-        sortArrows[j].addEventListener('click', sortByMe, false);
-    }
-};
+            // (1) Limit our results list
+            var numTracks = Math.min(maxTracks, tracks.length);
+            tracks = tracks.slice(0, numTracks);
 
+            // (1) Iterate over our tracks and
+            for (var i = 0; i < numTracks; i++) {
+                var div = trackDiv(tracks[i]); // (1) create a div to hold it
+                insertTrackDiv(div, tracklist); // (1) put it into our list
+            }
 
+            // (1) Add click handlers to the sorting controls
+            var sortArrows = tracklist.querySelectorAll('a.sort');
+            for (var j = 0; j < sortArrows.length; j++) {
+                sortArrows[j].addEventListener('click', sortByMe, false);
+
+             $("#artist-form").attr("disabled", "disabled").addClass("disabled");
+            }
+
+            var p = new Processing(canvas, sketch); // actually attach and run the sketch
+        }
+    });
+
+    $('#reload').click(function() {
+        location.reload();
+    });
+
+});
 
 //////////////////////////////////////////////////////////////////////////////
 // Generating the tracklist rows
@@ -53,7 +78,7 @@ window.onload = function() {
 function trackDiv(track) {
     // (1) This function generates a div from a given track
 
-    analyse(track); // (1) Grab all the Spotify and Echonest data we need and 
+    analyse(track); // (1) Grab all the Spotify and Echonest data we need and
     // put it into the track object
 
     var attrs = rowAttrsFromTrack(track); // (1) generate the data- attributes
@@ -66,54 +91,12 @@ function trackDiv(track) {
 
     rowBackground(row); // (1) and add a background to the row
 
-    row = nullify(row); // (2) and add null to the necessary cells in the row
-
     return row;
-}
-
-
-function nullify(row) {
-    // (2) A function to actually assign the null class to null cells in a row
-
-    // Identify the null cells
-    var cellsToNull = nullCells(row);
-    
-    // A function we use to modify a nodeList
-    function addNull(cell) { cell.classList.add('null'); }
-
-    for (var key in cellsToNull) {
-        if (cellsToNull[key]) {
-            var cellNodes = row.getElementsByClassName(key.replace(/^data-/, ''));
-            var cells = Array.prototype.slice.call(cellNodes);
-            cells.map(addNull);
-        }
-    }
-
-    return row;
-}
-
-
-function nullCells(trackDiv) {
-    // (2) We're using this function to label some cells null so that CSS
-    // styling (e.g. for the bpm and s units) isn't applied to null fields
-
-    var nullTests = {
-        // A dictionary of functions we'll use to test if the cell is null
-        'data-tempo': function (tempo) { return isNaN(tempo) || tempo < 0; },
-        'data-length': function (length) { return isNaN(length) || length < 0; }
-    };
-
-    for (var key in nullTests) {
-        // re-define nullTests with whether that attribute is null
-        nullTests[key] = trackDiv.hasAttribute(key) ? nullTests[key](trackDiv.getAttribute(key)) : null;
-    }
-
-    return nullTests;
 }
 
 
 function rowAttrsFromTrack(track) {
-    // (1) We're using http://ejohn.org/blog/html-5-data-attributes/ to store 
+    // (1) We're using http://ejohn.org/blog/html-5-data-attributes/ to store
     // information about each track in attributes of the div itself.  This
     // function generates those attributes we'll attach later
 
@@ -123,12 +106,12 @@ function rowAttrsFromTrack(track) {
         'data-album': track.album.name,
         'data-artist': artists(track),
         'data-title': track.name,
-        // (3) This is the conditional operator, which can be used as a 
+        // (3) This is the conditional operator, which can be used as a
         // shortcut for writing out a full if/else statement.  You can read
         // more about it at:
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_Operator
         'data-tempo': track.echo ? track.echo.audio_summary.tempo : -1,
-        'data-length': track.echo ? track.echo.audio_summary.duration : -1
+        'data-timesig': track.echo ? track.echo.audio_summary.time_signature : -1
     };
 
     return attrs;
@@ -153,12 +136,12 @@ function placeRow(trackDiv) {
     // (2) Naively, you'd want to control placement and ordering of tracks just
     // by controlling the ordering of the tracklists children; however, since
     // we're dealing with embedded content (the play embeds Spotify offers),
-    // a subtlety is involved.  Whenever an iframe's position in the DOM 
+    // a subtlety is involved.  Whenever an iframe's position in the DOM
     // changes, its content reloads.  This means that when we reordered the
     // rows, we'd be incurring a delay as we wait for the refresh on all the
     // iframes.
     //
-    // Instead, we decouple the ordering in the DOM from the position, and 
+    // Instead, we decouple the ordering in the DOM from the position, and
     // manually calculate the position we use--
 
     if (trackDiv.hasAttribute('data-playlist-position')) {
@@ -184,10 +167,10 @@ function cellsFromTrackAndAttrs(track, attrs) {
             Math.round(attrs['data-tempo']) : // round it
             '-'
         ], // otherwise, display it as '-'
-        ['length', attrs['data-length'] > 0 ? // if we have a number
-            Math.round(attrs['data-length']) : // round it
+        ['tempo', attrs['data-timesig'] > 0 ? // if we have a number
+            Math.round(attrs['data-timesig']) : // round it
             '-'
-        ] // otherwise, display it as '-'
+        ]
     ];
 
     // (1) Iterate over those cells & wrap that content in an appropriate Node
@@ -213,7 +196,7 @@ function cellsFromTrackAndAttrs(track, attrs) {
 // Playback functionality
 
 function setCurrentTrack(track) {
-    // (1) This function implements the interface functionality to change the 
+    // (1) This function implements the interface functionality to change the
     // content of our info-container and animating the slide-down transition
     // (as well as, via CSS, the highlighted track change) when we select a
     // track by clicking on its .inter.
@@ -237,7 +220,7 @@ function setCurrentTrack(track) {
     document.getElementById('track-name').innerHTML = track.name;
 
     // (1) Fade in all the children of #info-container-- i.e. our track
-    // info and album cover	
+    // info and album cover
     document.getElementById('cover-container').style.opacity = 1;
     document.getElementById('track-data-container').style.opacity = 1;
 
@@ -284,16 +267,21 @@ function sortByMe(e) {
     var arrow = e.toElement; // Which element received this event?
     var heading = arrow.id.split('-')[1]; // Find out which heading is ours
 
-    var direction = arrow.classList.contains('up') ? 'ascending': 'descending';
+    var ascending = null;
+    if (arrow.classList.contains('up')) {
+        ascending = 'ascending';
+    } else {
+        ascending = 'descending';
+    }
 
-    sortTableBy(tracklist, sortBy(heading, direction));
+    sortTableBy(tracklist, sortBy(heading, ascending));
 }
 
 
 function sortTableBy(table, sortingFunction) {
     // (1) This function actually sorts the table
 
-    // (3) Since our elements aren't ordered in the DOM, to find their 
+    // (3) Since our elements aren't ordered in the DOM, to find their
     // current order, we need to sort by their playlist-position when we grab
     // them
     var toSort = Array.prototype.slice.call(
@@ -312,13 +300,13 @@ function sortTableBy(table, sortingFunction) {
 
 
 function sortBy(whichClass, direction) {
-    // (2) This function returns a function which Array.sort can use to 
+    // (2) This function returns a function which Array.sort can use to
     // determine whether one thing is 'less' or 'greater' than another--
     //
     // (3) This ability to change the sort order means that we can sort
     // arbitrary collections of things that don't have a natural order--
-    // For numbers and words, we have a notion of order (numeric and 
-    // alphabetical, respectively).  This lets us sort in ascending or 
+    // For numbers and words, we have a notion of order (numeric and
+    // alphabetical, respectively).  This lets us sort in ascending or
     // descending order by writing our own sort function.
     //
     // (3) You can read more about Array.sort at:
@@ -362,7 +350,7 @@ function analyse(track) {
     // it gathers the info from Spotify and EchoNest which we load into the
     // track object in tracks[]
 
-    track.echo = ENSearch(track) || null; // This lets us set a variable to 
+    track.echo = ENSearch(track) || null; // This lets us set a variable to
     // the results of ENSearch, or if
     // there are no results, null
     if (track.echo) { // if we had results
@@ -383,7 +371,7 @@ function analyse(track) {
 
 function entag(tag, attributes, content) {
     // (2) This function lets us intelligently stick some content into a tag
-    // with a given set of attributes without having to go through the node 
+    // with a given set of attributes without having to go through the node
     // creation manually each time.
     //
     // Generating a table, there are a lot of times we want to wrap some
@@ -467,7 +455,7 @@ function scalePoints(points, xRangeMax, yRangeMax) {
     //
     // (3) In it, we use techniques often found in 'functional programming',
     // https://en.wikipedia.org/wiki/Functional_programming wherein
-    // 
+    //
     // (3) Specifically, we rely on map and apply, which you can read about
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
     // and
@@ -507,3 +495,59 @@ function scalePoints(points, xRangeMax, yRangeMax) {
 
     return scaled;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// Processing.js Visualization
+
+
+function sketch(p) {
+
+    function setup() {
+        p.size(300, 300);
+
+        p.rectMode(p.CENTER);
+
+        p.frameRate(10);
+
+        //p.noLoop();
+    }
+
+    function draw() {
+        p.background(255);
+        grid(10);
+    }
+
+    function grid(gridSize) {
+        var gridW = 25;
+        var gridH = 25;
+
+        for (var row = 0; row < 10; row++) {
+
+            duration = tracks[row].echo ? tracks[row].echo.audio_summary.duration/40 : 0;
+            acousticness = tracks[row].echo ? tracks[row].echo.audio_summary.acousticness : 0;
+            danceability = tracks[row].echo ? tracks[row].echo.audio_summary.danceability : 0;
+            tempo = tracks[row].echo ? tracks[row].echo.audio_summary.tempo/gridSize/100 : 0;
+            energy = tracks[row].echo ? tracks[row].echo.audio_summary.energy : 0;
+            key = tracks[row].echo ? tracks[row].echo.audio_summary.key : 0;
+
+
+            for (var col = 0; col < duration; col++) {
+                p.noStroke();
+                p.fill(danceability * 200, 0, energy * 30);
+                //rect(x,y,w,h);... currently, energy is bar thickness, duration is bar length
+                //Red Bars
+                p.rect(15 + (col * 30), 15 + (row * 30), gridW * duration * 50, gridH * energy + col);
+                p.fill(tempo * 100, acousticness * 100, acousticness * 100);
+                //Teal Bars
+                p.rect(15 + (col * 30), (row * 30), gridW * energy, gridH * danceability);
+
+            }
+
+        }
+    }
+
+    p.setup = setup;
+    p.draw = draw;
+
+}
+

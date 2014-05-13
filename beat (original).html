@@ -3,40 +3,24 @@
 <head>
     <link href='http://fonts.googleapis.com/css?family=Codystar|Open+Sans' rel='stylesheet' type='text/css'>
     <link href='./beat.css' rel='stylesheet' type='text/css'>
-     <link href='./animate.css' rel='stylesheet' type='text/css'>
-
-    <style>
-    canvas{
+<style>
+    canvas {
         outline: none;
-        
     }
     /* So that when we click, the canvas isn't outlined */
-    </style>
+</style>
+
+
 </head>
 
 <body>
-    <canvas id="circles"></canvas>        
-        <div class="extra">
-            <div id="reload">
-                <a href="#"><img src="img/music.png"></a>
-            </div>
-        </div>
-        <div id="landing">
-        <form>
-        
-            <p class="centro parrafo">Search for an<br/> Artist or Song</p>
-        <div class="centro">
-            <input type="text" id="artist-form" placeholder="add artist">
-        </div>
-        </form>
-
-
-
-        </div>
+    
+    <canvas id="landing"></canvas>
     <div id="searchbox">
           First name: <input type="text" name="fname"><br>
           Last name: <input type="text" name="lname"><br>
           <input type="submit" value="Submit">
+
     </div>
     <div id='container'>
         <!-- #info-container is the top panel, with album art and info -->
@@ -137,11 +121,9 @@
             </div>
         </div>
     </div>
-    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 
     <script src='./processing.js'></script>
-    <script src='processing-1.4.1.js'></script>
-    <script src='landing.js'></script>
+    <script src='./landing.js'></script>
     <script src='./spotify.js'></script>
     <script src='./echonest.js'></script>
     <script src='./beat.js'></script>
